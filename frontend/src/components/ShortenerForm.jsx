@@ -4,14 +4,14 @@ import { Link2, AlertCircle, Wand2 } from 'lucide-react'
 import ResultCard from './ResultCard'
 
 // The backend API URL (runs on port 5000 during dev)
-const API_URL = 'http://localhost:5000/api/url'
+const API_URL = 'https://shorter-url-ltpr.onrender.com'
 
 const ShortenerForm = () => {
   // State variables for our form fields
   const [originalUrl, setOriginalUrl] = useState('')
   const [customAlias, setCustomAlias] = useState('')
   const [expiresInDays, setExpiresInDays] = useState('')
-  
+
   // State for handling loading, success data, and errors
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState(null)
@@ -31,13 +31,13 @@ const ShortenerForm = () => {
         customAlias,
         expiresInDays: expiresInDays ? parseInt(expiresInDays) : null
       })
-      
+
       // If successful, save the returned data (the new short code) to state
       setResult(response.data)
       setOriginalUrl('')
       setCustomAlias('')
       setExpiresInDays('')
-      
+
     } catch (err) {
       // Capture any error messages sent from the backend
       setError(err.response?.data?.error || 'Failed to shorten URL. Please try again.')
@@ -53,13 +53,13 @@ const ShortenerForm = () => {
         <ResultCard result={result} onReset={() => setResult(null)} />
       ) : (
         <form onSubmit={handleSubmit}>
-          
+
           <div className="input-group">
-            <label htmlFor="url">Long URL <span style={{color:'var(--error)'}}>*</span></label>
-            <input 
+            <label htmlFor="url">Long URL <span style={{ color: 'var(--error)' }}>*</span></label>
+            <input
               id="url"
-              type="url" 
-              placeholder="https://very-long-link.com/article/1" 
+              type="url"
+              placeholder="https://very-long-link.com/article/1"
               className="input-field"
               value={originalUrl}
               onChange={(e) => setOriginalUrl(e.target.value)}
@@ -69,10 +69,10 @@ const ShortenerForm = () => {
 
           <div className="input-group">
             <label htmlFor="alias">Custom Alias (Optional)</label>
-            <input 
+            <input
               id="alias"
-              type="text" 
-              placeholder="e.g. summer-sale" 
+              type="text"
+              placeholder="e.g. summer-sale"
               className="input-field"
               value={customAlias}
               onChange={(e) => setCustomAlias(e.target.value)}
@@ -83,10 +83,10 @@ const ShortenerForm = () => {
 
           <div className="input-group">
             <label htmlFor="expiry">Expires In (Days - Optional)</label>
-            <input 
+            <input
               id="expiry"
-              type="number" 
-              placeholder="Leave blank for never" 
+              type="number"
+              placeholder="Leave blank for never"
               className="input-field"
               min="1"
               value={expiresInDays}
@@ -100,7 +100,7 @@ const ShortenerForm = () => {
             </div>
           )}
 
-          <button type="submit" className="btn-primary" disabled={loading} style={{marginTop: '1.5rem'}}>
+          <button type="submit" className="btn-primary" disabled={loading} style={{ marginTop: '1.5rem' }}>
             {loading ? 'Generating...' : <><Wand2 size={20} /> Shorten URL</>}
           </button>
         </form>
