@@ -40,7 +40,8 @@ const shortenUrl = async (req, res) => {
       originalUrl,
       shortUrl,
       customAlias: customAlias || undefined, // undefined prevents MongoDB unique constraint errors if no alias
-      expiresAt: expiresAtDate
+      expiresAt: expiresAtDate,
+      userId: req.user ? req.user._id : undefined
     });
 
     // 6. Save it to the MongoDB database
@@ -75,6 +76,11 @@ const getAnalytics = async (req, res) => {
     // If we can't find it, return a 404 Not Found error
     if (!urlDoc) {
       return res.status(404).json({ error: 'Short link not found' });
+    }
+
+    // Verify ownership
+    if (urlDoc.userId && req.user && urlDoc.userId.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ error: 'You do not have permission to view analytics for this link' });
     }
 
     // If found, return the useful analytics data

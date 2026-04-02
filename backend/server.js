@@ -8,6 +8,7 @@ dotenv.config();
 
 // Import our API routes and the MongoDB Model
 const urlRoutes = require('./routes/urlRoutes');
+const authRoutes = require('./routes/authRoutes');
 const Url = require('./models/Url');
 
 // Initialize the Express application
@@ -22,6 +23,9 @@ app.use(express.json());
 // Set up the API routes under the '/api/url' prefix
 // (e.g., our shorten route becomes: POST domain.com/api/url/shorten)
 app.use('/api/url', urlRoutes);
+
+// Set up the Auth routes under '/api/auth'
+app.use('/api/auth', authRoutes);
 
 // verifying
 app.get('/',(req,res)=>{

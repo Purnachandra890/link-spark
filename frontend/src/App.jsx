@@ -1,22 +1,45 @@
-import { useState } from 'react'
+import { useState, useContext } from 'react'
 import ShortenerForm from './components/ShortenerForm'
 import AnalyticsPanel from './components/AnalyticsPanel'
-import { LinkIcon, BarChart2, Scissors } from 'lucide-react'
+import AuthForms from './components/AuthForms'
+import { LinkIcon, BarChart2, Scissors, LogOut } from 'lucide-react'
+import { AuthContext } from './context/AuthContext'
 
 // Main Application Component
 function App() {
   // State to toggle between the 'Shorten' form and the 'Analytics' panel
   
   const [activeTab, setActiveTab] = useState('shorten')
+  const { user, logout } = useContext(AuthContext)
 
   return (
     <>
       {/* Premium Header */}
-      <h1 className="gradient-text">
-        <Scissors size={40} style={{marginRight: '10px'}}/>
-        LinkSpark
-      </h1>
-      <p className="subtitle">Lightning fast URL shortening and analytics</p>
+      <header style={{ position: 'relative', width: '100%', textAlign: 'center', marginBottom: '1rem' }}>
+        <h1 className="gradient-text">
+          <Scissors size={40} style={{marginRight: '10px'}}/>
+          LinkSpark
+        </h1>
+        <p className="subtitle">Lightning fast URL shortening and analytics</p>
+        
+        {user && (
+          <button 
+             onClick={logout} 
+             className="tab" 
+             style={{
+               position: 'absolute', 
+               right: '0', 
+               top: '0',
+               padding: '0.6rem 1.2rem',
+               fontSize: '0.9rem'
+             }}
+          >
+             <span style={{display: 'flex', alignItems:'center', gap: '0.5rem'}}>
+               <LogOut size={16} /> Logout
+             </span>
+          </button>
+        )}
+      </header>
 
       {/* Navigation Tabs */}
       <div className="tabs">
@@ -40,8 +63,12 @@ function App() {
 
       {/* Main Content Area */}
       <main>
-        {/* Render the appropriate component based on the active tab */}
-        {activeTab === 'shorten' ? <ShortenerForm /> : <AnalyticsPanel />}
+        {!user ? (
+          <AuthForms />
+        ) : (
+          /* Render the appropriate component based on the active tab */
+          activeTab === 'shorten' ? <ShortenerForm /> : <AnalyticsPanel />
+        )}
       </main>
     </>
   )

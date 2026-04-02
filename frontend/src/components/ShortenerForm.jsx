@@ -1,13 +1,15 @@
-import { useState } from 'react'
+import { useState, useContext, useEffect } from 'react'
 import axios from 'axios'
 import { Link2, AlertCircle, Wand2 } from 'lucide-react'
 import ResultCard from './ResultCard'
+import { AuthContext } from '../context/AuthContext'
 
 // The backend API URL (runs on port 5000 during dev)
 // const API_URL = 'https://shorter-url-ltpr.onrender.com'
 const API_URL = 'http://localhost:5000'
 
 const ShortenerForm = () => {
+  const { token } = useContext(AuthContext)
   // State variables for our form fields
   const [originalUrl, setOriginalUrl] = useState('')
   const [customAlias, setCustomAlias] = useState('')
@@ -17,6 +19,37 @@ const ShortenerForm = () => {
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState(null)
   const [error, setError] = useState(null)
+  
+  const [resetTime, setResetTime] = useState(null)
+  const [timeLeft, setTimeLeft] = useState('')
+
+  // Calculate time remaining if rate limited
+  useEffect(() => {
+    let interval;
+    if (resetTime) {
+      // Calculate immediately before interval starts
+      const updateTimer = () => {
+        const now = new Date();
+        const resetDate = new Date(resetTime);
+        const diff = resetDate - now;
+
+        if (diff <= 0) {
+          setTimeLeft('');
+          setResetTime(null);
+          setError(null);
+          clearInterval(interval);
+        } else {
+          const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+          const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+          setTimeLeft(`${minutes}m ${seconds}s`);
+        }
+      };
+      
+      updateTimer(); // Run once instantly
+      interval = setInterval(updateTimer, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [resetTime]);
 
   // Handle form submission
   const handleSubmit = async (e) => {
@@ -24,6 +57,8 @@ const ShortenerForm = () => {
     setLoading(true)
     setError(null)
     setResult(null)
+    setResetTime(null)
+    setTimeLeft('')
 
     try {
       // Send a POST request to our Express backend
@@ -31,6 +66,10 @@ const ShortenerForm = () => {
         originalUrl,
         customAlias,
         expiresInDays: expiresInDays ? parseInt(expiresInDays) : null
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
       })
 
       // If successful, save the returned data (the new short code) to state
@@ -42,6 +81,11 @@ const ShortenerForm = () => {
     } catch (err) {
       // Capture any error messages sent from the backend
       setError(err.response?.data?.error || 'Failed to shorten URL. Please try again.')
+      
+      // If we got rate limited, capture the reset time
+      if (err.response?.data?.resetTime) {
+        setResetTime(err.response.data.resetTime)
+      }
     } finally {
       setLoading(false)
     }
@@ -96,8 +140,15 @@ const ShortenerForm = () => {
           </div>
 
           {error && (
-            <div className="error-msg">
-              <AlertCircle size={16} /> {error}
+            <div className="error-msg" style={{flexDirection: 'column', alignItems: 'flex-start'}}>
+              <div style={{display: 'flex', alignItems: 'center', gap: '0.3rem'}}>
+                <AlertCircle size={16} /> {error}
+              </div>
+              {timeLeft && (
+                 <div style={{marginTop: '0.5rem', padding: '0.5rem 1rem', background: 'rgba(255,76,76,0.1)', borderRadius: '8px', border: '1px solid rgba(255,76,76,0.2)', color: 'var(--error)'}}>
+                   Try again in: <span style={{fontWeight: 'bold'}}>{timeLeft}</span>
+                 </div>
+              )}
             </div>
           )}
 

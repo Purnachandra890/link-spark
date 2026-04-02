@@ -1,10 +1,12 @@
-import { useState } from 'react'
+import { useState, useContext } from 'react'
 import axios from 'axios'
 import { Search, Activity, Calendar, Clock, AlertCircle } from 'lucide-react'
+import { AuthContext } from '../context/AuthContext'
 
 const API_URL = 'http://localhost:5000/api/url'
 
 const AnalyticsPanel = () => {
+  const { token } = useContext(AuthContext)
   const [shortCode, setShortCode] = useState('')
   const [analyticsData, setAnalyticsData] = useState(null)
   const [loading, setLoading] = useState(false)
@@ -26,7 +28,11 @@ const AnalyticsPanel = () => {
     setError(null)
     
     try {
-      const response = await axios.get(`${API_URL}/analytics/${cleanCode}`)
+      const response = await axios.get(`${API_URL}/analytics/${cleanCode}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
       setAnalyticsData(response.data)
     } catch (err) {
       setError(err.response?.data?.error || 'Analytics not found for this code.')
