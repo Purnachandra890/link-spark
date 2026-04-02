@@ -4,7 +4,8 @@ import { Link2, AlertCircle, Wand2 } from 'lucide-react'
 import ResultCard from './ResultCard'
 
 // The backend API URL (runs on port 5000 during dev)
-const API_URL = 'https://shorter-url-ltpr.onrender.com'
+// const API_URL = 'https://shorter-url-ltpr.onrender.com'
+const API_URL = 'http://localhost:5000'
 
 const ShortenerForm = () => {
   // State variables for our form fields

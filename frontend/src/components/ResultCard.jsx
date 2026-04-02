@@ -6,7 +6,7 @@ const ResultCard = ({ result, onReset }) => {
   const [copied, setCopied] = useState(false)
 
   // We construct the full URL pointing to our backend server, which handles the redirect
-  const fullShortUrl = `https://shorter-url-ltpr.onrender.com/${result.shortCode}`
+  const fullShortUrl = `http://localhost:5000/${result.shortCode}`
 
   // Function to copy text to user's clipboard
   const handleCopy = () => {
@@ -30,7 +30,7 @@ const ResultCard = ({ result, onReset }) => {
         rel="noopener noreferrer" 
         className="short-url-link"
       >
-        shorter-url-ltpr.onrender.com/{result.shortCode}
+        {fullShortUrl}
       </a>
 
       <button onClick={handleCopy} className="btn-primary" style={{marginTop: '1.5rem'}}>

@@ -23,14 +23,16 @@ const shortenUrl = async (req, res) => {
 
     // 3. Generate the Short Code (using nanoid if no custom alias was requested)
     // nanoid(7) creates a random 7-character string like "V1StGXR"
-    const shortUrl = nanoid(7); 
+    const shortUrl = nanoid(7);
 
     // 4. Handle Expiration logic (if the user requested an expiry date)
+    const days = parseInt(expiresInDays);
+
     let expiresAtDate = null;
-    if (expiresInDays && !isNaN(expiresInDays)) {
-      // Calculate the future date by adding 'expiresInDays' to the current date
+
+    if (!isNaN(days)) {
       expiresAtDate = new Date();
-      expiresAtDate.setDate(expiresAtDate.getDate() + parseInt(expiresInDays));
+      expiresAtDate.setDate(expiresAtDate.getDate() + days);
     }
 
     // 5. Create the new URL document using our Mongoose Schema
@@ -38,7 +40,7 @@ const shortenUrl = async (req, res) => {
       originalUrl,
       shortUrl,
       customAlias: customAlias || undefined, // undefined prevents MongoDB unique constraint errors if no alias
-      expiresAt: expiresAtDate 
+      expiresAt: expiresAtDate
     });
 
     // 6. Save it to the MongoDB database
